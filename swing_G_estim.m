@@ -1,6 +1,7 @@
 %% 
 clear; 
 close all;
+addpath('helpers/');
 
 %% log specifics and fixes
 % ac_data = readtable('~/LOGS/swing/20260130_tosca/yaw_test.csv');
@@ -61,8 +62,7 @@ actTR = lsim(G1, act_cmd_TR, t);
 actBR = lsim(G1, act_cmd_BR, t);
 actBL = lsim(G1, act_cmd_BL, t);
 
-%% filter with Butterworth (+ Notch???)
-% Butterworth
+%% filter with Butterworth
 filter_freq = 2;
 [b, a] = butter(2,filter_freq/(fs/2));
 
