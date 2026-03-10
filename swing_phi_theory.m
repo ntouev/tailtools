@@ -1,13 +1,39 @@
 %% 
 clear; 
-close all;
+% close all;
 addpath('helpers/');
 
 %% log specifics and fixes
-ac_data = readtable('~/LOGS/swing/20260219_tuning/rpy.csv');
+% ac_data = readtable('~/LOGS/swing/20260219_tuning/rpy.csv');
 % tranges = [26 42]; % roll
-tranges = [38 60]; % pitch
+% tranges = [38 60]; % pitch
 % tranges = [64 76]; % thrust
+
+% ac_data = readtable('~/LOGS/swing/20260304_stab/02.Kq2_Komega10.csv');
+% tranges = [10 60];
+% tranges = [15 35]; % pitch
+% tranges = [39.5 45.5]; % roll
+% ac_data = readtable('~/LOGS/swing/20260304_stab/08.Kq2.5Komega12.csv');
+% tranges = [10 100];
+
+% ac_data = readtable('~/LOGS/swing/20260306_more_stab/01.rigid_structure.csv');
+% tranges = [10 120];
+% ac_data = readtable('~/LOGS/swing/20260306_more_stab/03.training_dataset.csv');
+% tranges = [10 90]; % roll picth
+% tranges = [8 112]; % yaw
+
+% ac_data = readtable('~/LOGS/swing/20260309_again_stab/01.wls.csv');
+% tranges = [5 90];
+% ac_data = readtable('~/LOGS/swing/20260309_again_stab/09.final_0.csv');
+% tranges = [5 55; 60 70];
+% ac_data = readtable('~/LOGS/swing/20260309_again_stab/10.final_0_with_WLS.csv');
+% tranges = [3 38];
+ac_data = readtable('~/LOGS/swing/20260309_again_stab/11.final_0_again.csv');
+tranges = [5 66; 76 90];
+
+% remove duplicates
+[~, keep_idx] = unique(ac_data.timestamp, 'stable');
+ac_data = ac_data(keep_idx, :);
 
 ac_data(end, :) = [];  % remove the last row
 ac_data.timestamp = ac_data.timestamp - ac_data.timestamp(1);
@@ -27,16 +53,16 @@ for i = 1:size(tranges,1)
 end
 
 %% interp (units: SI and pprz units)
-p = interp1(ac_data.timestamp, ac_data.rate_imu_p, t, "linear", "extrap");
-q = interp1(ac_data.timestamp, ac_data.rate_imu_q, t, "linear", "extrap");
-r = interp1(ac_data.timestamp, ac_data.rate_imu_r, t, "linear", "extrap");
+p = interp1(ac_data.timestamp, ac_data.rates_p, t, "linear", "extrap");
+q = interp1(ac_data.timestamp, ac_data.rates_q, t, "linear", "extrap");
+r = interp1(ac_data.timestamp, ac_data.rates_r, t, "linear", "extrap");
 
-accz = interp1(ac_data.timestamp, ac_data.acc_imu_z, t, "linear", "extrap");
+accz = interp1(ac_data.timestamp, ac_data.acc_z, t, "linear", "extrap");
 
-act_cmd_TL = interp1(ac_data.timestamp, ac_data.act_cmd_TL, t, "linear", "extrap");
-act_cmd_TR = interp1(ac_data.timestamp, ac_data.act_cmd_TR, t, "linear", "extrap");
-act_cmd_BR = interp1(ac_data.timestamp, ac_data.act_cmd_BR, t, "linear", "extrap");
-act_cmd_BL = interp1(ac_data.timestamp, ac_data.act_cmd_BL, t, "linear", "extrap");
+act_cmd_TL = interp1(ac_data.timestamp, ac_data.act_cmd_1, t, "linear", "extrap");
+act_cmd_TR = interp1(ac_data.timestamp, ac_data.act_cmd_2, t, "linear", "extrap");
+act_cmd_BR = interp1(ac_data.timestamp, ac_data.act_cmd_3, t, "linear", "extrap");
+act_cmd_BL = interp1(ac_data.timestamp, ac_data.act_cmd_4, t, "linear", "extrap");
 
 %% 1st order actuator dynamics (pprz units)
 G1 = tf(1, [1/11 1]);
@@ -46,7 +72,7 @@ actBR = lsim(G1, act_cmd_BR, t);
 actBL = lsim(G1, act_cmd_BL, t);
 
 %% filter with Butterworth
-filter_freq = 2;
+filter_freq = 4;
 [b, a] = butter(2,filter_freq/(fs/2));
 
 pf = filter(b, a, p, get_ic(b,a,p(1)));
@@ -137,11 +163,11 @@ Yangz = rf_dd(datarange);
 mdl_angz = fitlm(Xangz, Yangz, "linear", 'Intercept', false);
 
 %% Plot
-fprintf('Accel z (x 10^-8): '); fprintf('%.0f ', mdl_accelz.Coefficients.Estimate*1e8); fprintf('\n');
+fprintf('Accel z (x 10^-8): '); fprintf('%.2f ', mdl_accelz.Coefficients.Estimate*1e8); fprintf('\n');
 
-fprintf('Ang x   (x 10^-8): '); fprintf('%.0f ', mdl_angx.Coefficients.Estimate*1e8); fprintf('\n');
+fprintf('Ang x   (x 10^-8): '); fprintf('%.1f ', mdl_angx.Coefficients.Estimate*1e8); fprintf('\n');
 fprintf('Ang y   (x 10^-8): '); fprintf('%.0f ', mdl_angy.Coefficients.Estimate*1e8); fprintf('\n');
-fprintf('Ang z   (x 10^-8): '); fprintf('%.0f ', mdl_angz.Coefficients.Estimate*1e8); fprintf('\n');
+fprintf('Ang z   (x 10^-8): '); fprintf('%.1f ', mdl_angz.Coefficients.Estimate*1e8); fprintf('\n');
 
 figure('Name','Phi theory fit');
 tiledlayout(3, 2, 'Padding', 'compact', 'TileSpacing', 'compact');
@@ -208,3 +234,7 @@ legend('show');
 hold off;
 
 linkaxes([ax1, ax2, ax3, ax4, ax5, ax6],'x');
+
+%%
+figure('Name', 'Actuators');
+plot_actuators(ac_data);

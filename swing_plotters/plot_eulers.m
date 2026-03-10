@@ -12,6 +12,7 @@ function plot_eulers(ac_data)
     hold on; zoom on; grid on;
     h1 = plot(ac_data.timestamp, eulZXY_sp(:,2), LineWidth=1.5);
     h2 = plot(ac_data.timestamp, eulZXY(:,2), LineWidth=1.5);
+    ylim([-pi/2,pi/2]);
     xlabel('time [s]');
     ylabel('phi [rad]');
     title('phi');
@@ -20,6 +21,7 @@ function plot_eulers(ac_data)
     hold on; zoom on; grid on;
     h3 = plot(ac_data.timestamp, eulZXY_sp(:,3), LineWidth=1.5);
     h4 = plot(ac_data.timestamp, eulZXY(:,3), LineWidth=1.5);
+    ylim([-pi/2,pi/2]);
     xlabel('time [s]');
     ylabel('theta [rad]');
     title('theta');
@@ -29,6 +31,7 @@ function plot_eulers(ac_data)
     hold on; zoom on; grid on;
     h5 = plot(ac_data.timestamp, eulZXY_sp(:,1), LineWidth=1.5);
     h6 = plot(ac_data.timestamp, eulZXY(:,1), LineWidth=1.5);
+    ylim([-pi,pi]);
     xlabel('time [s]');
     ylabel('psi [rad]');
     title('psi');
