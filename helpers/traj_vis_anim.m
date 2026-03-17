@@ -4,16 +4,18 @@ function f = traj_vis_anim(varargin)
     addpath(genpath(fullfile(homeDir,'tails_plotters/')));
     
     %% Parse inputs
-    if nargin == 3
+    if nargin == 4
         ref        = struct();
         actual     = varargin{1};
         title_name = varargin{2};
         fs_vis     = varargin{3};
-    elseif nargin == 4
+        useFixedLims = varargin{4};
+    elseif nargin == 5
         ref        = varargin{1};
         actual     = varargin{2};
         title_name = varargin{3};
         fs_vis     = varargin{4};
+        useFixedLims = varargin{5};
     else
         error('Usage: traj_vis_anim(actual, name)  OR traj_vis_anim(ref, actual, name)');
     end
@@ -234,13 +236,19 @@ function f = traj_vis_anim(varargin)
           'FaceColor',[0.35 0.65 0.95],'EdgeColor','none','FaceAlpha',1.0);
     
     % Axes limits (ensure origin visible)
-    pad = 0.1*sceneSize + scale_world;
-    xmin = min(pActual(:,1)); xmax = max(pActual(:,1));
-    ymin = min(pActual(:,2)); ymax = max(pActual(:,2));
-    zmin = min(pActual(:,3)); zmax = max(pActual(:,3));
-    xlim(axWorld,[min(xmin,0)-pad, max(xmax,0)+pad]);
-    ylim(axWorld,[min(ymin,0)-pad, max(ymax,0)+pad]);
-    zlim(axWorld,[min(zmin,0)-pad, max(zmax,0)+pad]);
+    if useFixedLims
+        xlim(axWorld, [-5 5]);
+        ylim(axWorld, [-5 5]);
+        zlim(axWorld, [-10 0]);
+    else
+        pad = 0.1*sceneSize + scale_world;
+        xmin = min(pActual(:,1)); xmax = max(pActual(:,1));
+        ymin = min(pActual(:,2)); ymax = max(pActual(:,2));
+        zmin = min(pActual(:,3)); zmax = max(pActual(:,3));
+        xlim(axWorld,[min(xmin,0)-pad, max(xmax,0)+pad]);
+        ylim(axWorld,[min(ymin,0)-pad, max(ymax,0)+pad]);
+        zlim(axWorld,[min(zmin,0)-pad, max(zmax,0)+pad]);
+    end
     
     % Lighting
     try
@@ -264,7 +272,7 @@ function f = traj_vis_anim(varargin)
     Rfix = eul2rotm([0, 0, -pi/2], 'ZXY');
     
     % Person at NED origin
-    draw_person_ned(axWorld, [0 0 0], 1.75);
+    % draw_person_ned(axWorld, [0 0 0], 1.75);
     
     %% Playback state & init
     kFrame = 1;
