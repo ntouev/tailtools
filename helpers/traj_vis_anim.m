@@ -239,7 +239,7 @@ function f = traj_vis_anim(varargin)
     if useFixedLims
         xlim(axWorld, [-5 5]);
         ylim(axWorld, [-5 5]);
-        zlim(axWorld, [-10 0]);
+        zlim(axWorld, [-6 0]);
     else
         pad = 0.1*sceneSize + scale_world;
         xmin = min(pActual(:,1)); xmax = max(pActual(:,1));

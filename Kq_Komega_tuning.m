@@ -3,8 +3,8 @@ close all;
 
 wc = 11;
 
-Komega_list = [14];
-Keta_list   = [2 2.5 3.5 4 4.5];
+Komega_list = [15];
+Kq_list   = [2 2.5 3 3.5 4 4.5];
 
 G = tf(1, [1/wc 1], 'InputDelay', 0.0);
 I = tf(1,[1 0]);
@@ -18,14 +18,14 @@ for i = 1:numel(Komega_list)
 
     figure; hold on;
 
-    lgd = strings(1, numel(Keta_list));
+    lgd = strings(1, numel(Kq_list));
 
-    for j = 1:numel(Keta_list)
-        Keta = Keta_list(j);
+    for j = 1:numel(Kq_list)
+        Kq = Kq_list(j);
 
-        T = feedback(Keta*Geta, 1);
+        T = feedback(Kq*Geta, 1);
         step(T);
-        lgd(j) = sprintf('K\\eta = %g', Keta);
+        lgd(j) = sprintf('K\\eta = %g', Kq);
     end
 
     title(sprintf('Step response, K\\omega = %g', Komega));

@@ -1,0 +1,40 @@
+function plot_body_translational(ac_data)
+    blue   = [0 0.4470 0.7410];
+    orange = [0.8500 0.3250 0.0980];
+    yellow = [0.9290 0.6940 0.1250];
+
+    quat = [ac_data.qs, ac_data.qx, ac_data.qy, ac_data.qz];
+    vi = [ac_data.vel_n, ac_data.vel_e, ac_data.vel_d];
+    ai_filt = [ac_data.acc_filt_n, ac_data.acc_filt_e, ac_data.acc_filt_d];
+    vb = quatrotate(quat, vi);
+    ab_filt = quatrotate(quat, ai_filt);
+
+    norm_v = sqrt(sum(vi.*vi, 2));
+
+    tiledlayout(2, 1, 'Padding', 'compact', 'TileSpacing', 'compact');
+    
+    ax1 = nexttile;
+    hold on; zoom on; grid on;
+    h1 = plot(ac_data.timestamp, vb(:,1), LineWidth=1.5);
+    h2 = plot(ac_data.timestamp, vb(:,2), LineWidth=1.5);
+    h3 = plot(ac_data.timestamp, vb(:,3), LineWidth=1.5);
+    h4 = plot(ac_data.timestamp, norm_v, LineWidth=1.5, LineStyle=':');
+    xlabel('time [s]');
+    ylabel('Body velocity [m/s]');
+    title('Body velocity');
+
+    ax2 = nexttile;
+    hold on; zoom on; grid on;
+    h5 = plot(ac_data.timestamp, ab_filt(:,1), LineWidth=1.5);
+    h6 = plot(ac_data.timestamp, ab_filt(:,2), LineWidth=1.5);
+    h7 = plot(ac_data.timestamp, ab_filt(:,3), LineWidth=1.5);
+    xlabel('time [s]');
+    ylabel('Body accel [m/s^2]');
+    title('Body accel');
+
+    legend(ax1, [h1,h2,h3,h4], {'v_x','v_y','v_z','norm'});
+    legend(ax2, [h5,h6,h7], {'a_x filt','a_y filt','a_z filt'});
+
+    linkaxes([ax1,ax2],'x');
+
+end

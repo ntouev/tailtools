@@ -1,6 +1,7 @@
 function vis_swing(ac_data, fs_vis, anim)
+
     homeDir = getenv('HOME');
-    addpath(genpath(fullfile(homeDir,'tailtools/')));
+    addpath(genpath(fullfile(homeDir,'tailtools/stl')));
 
     vel_i = [ac_data.vel_n,ac_data.vel_e, ac_data.vel_d];
     norm_vel = sqrt(sum(vel_i.*vel_i, 2));
