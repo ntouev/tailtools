@@ -53,10 +53,25 @@ meta = struct();
 
 % ac_data = readtable('~/LOGS/swing/20260323_monday_tests/01.bench_test_reference_signals.csv');
 
-% ac_data = readtable('~/LOGS/swing/20260324_guidance/01.out_first.csv');
+% ac_data = readtable('~/LOGS/swing/20260324_guidance/09.csv');
 % ac_data = readtable('~/LOGS/swing/20260324_guidance/12.uncoord_circle.csv');
-ac_data = readtable('~/LOGS/swing/20260324_guidance/13.coord_circle.csv');
+% ac_data = readtable('~/LOGS/swing/20260324_guidance/13.coord_circle.csv');
 % ac_data = readtable('~/LOGS/swing/20260324_guidance/16.csv');
+
+% ac_data = readtable('~/LOGS/swing/20260326_logger_issue/01.old.csv');
+% ac_data = readtable('~/LOGS/swing/20260326_logger_issue/02.newcode_erik_test.csv');
+% ac_data = readtable('~/LOGS/swing/20260326_logger_issue/03.old_code_till_full_interall_000.csv');
+% ac_data = readtable('~/LOGS/swing/20260326_logger_issue/04.old_code_in_data_log_dir.csv');
+% ac_data = readtable('~/LOGS/swing/20260326_logger_issue/05.new_code.csv');
+% ac_data = readtable('~/LOGS/swing/20260326_logger_issue/06.old_code_less_data.csv');
+% ac_data = readtable('~/LOGS/swing/20260326_logger_issue/07.old_code_full_data_100Hz.csv');
+% ac_data = readtable('~/LOGS/swing/20260326_logger_issue/08.datalog_100Hz.csv');
+
+% ac_data = readtable('~/LOGS/swing/20260326_flight_tests/05.wc20_stock_mot_KK_props.csv');
+% ac_data = readtable('~/LOGS/swing/20260326_flight_tests/07.maiden_75c.csv');
+% ac_data = readtable('~/LOGS/swing/20260326_flight_tests/08.plus_optitrack.csv');
+% ac_data = readtable('~/LOGS/swing/20260326_flight_tests/09.after_training.csv');
+ac_data = readtable('~/LOGS/swing/20260326_flight_tests/10.circle.csv');
 
 %%% nps
 % ac_data = readtable('~/LOGS/swing/nps/test_43.csv', 'CommentStyle', '#');
