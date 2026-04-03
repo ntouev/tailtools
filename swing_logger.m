@@ -71,10 +71,43 @@ meta = struct();
 % ac_data = readtable('~/LOGS/swing/20260326_flight_tests/07.maiden_75c.csv');
 % ac_data = readtable('~/LOGS/swing/20260326_flight_tests/08.plus_optitrack.csv');
 % ac_data = readtable('~/LOGS/swing/20260326_flight_tests/09.after_training.csv');
-ac_data = readtable('~/LOGS/swing/20260326_flight_tests/10.circle.csv');
+% ac_data = readtable('~/LOGS/swing/20260326_flight_tests/10.circle.csv');
+
+% ac_data = readtable('~/LOGS/swing/20260327_new_mot_prop_setup/01.wc19.csv');
+% ac_data = readtable('~/LOGS/swing/20260327_new_mot_prop_setup/02.wc14.csv');
+% ac_data = readtable('~/LOGS/swing/20260327_new_mot_prop_setup/03.wc11.csv');
+% ac_data = readtable('~/LOGS/swing/20260327_new_mot_prop_setup/08.Kq2.5_Komega10.csv');
+% ac_data = readtable('~/LOGS/swing/20260327_new_mot_prop_setup/09.circle_vs3.csv');
+% ac_data = readtable('~/LOGS/swing/20260327_new_mot_prop_setup/10.cx_0.3.csv');
+ac_data = readtable('~/LOGS/swing/20260327_new_mot_prop_setup/11.cx_0.172.csv');
+% ac_data = readtable('~/LOGS/swing/20260327_new_mot_prop_setup/12.kp1.5_kv4.csv');
+% ac_data = readtable('~/LOGS/swing/20260327_new_mot_prop_setup/15.kp1.5_kv4_vs4.csv');
+% ac_data = readtable('~/LOGS/swing/20260327_new_mot_prop_setup/17.vs5.csv');
+% ac_data = readtable('~/LOGS/swing/20260327_new_mot_prop_setup/19.vs5.csv');
+
+% ac_data = readtable('~/LOGS/swing/20260331_coord/01.bench_test_log_format.csv');
+% ac_data = readtable('~/LOGS/swing/20260331_coord/03.check_coord_signals_again.csv');
+% ac_data = readtable('~/LOGS/swing/20260331_coord/04.full_coord-uncoord_mixing.csv');
+% ac_data = readtable('~/LOGS/swing/20260331_coord/05.no_wref.csv');
+% ac_data = readtable('~/LOGS/swing/20260331_coord/06.Kp1_Kv3.csv');
+% ac_data = readtable('~/LOGS/swing/20260331_coord/07.Kp1_kv2.csv');
+% ac_data = readtable('~/LOGS/swing/20260331_coord/11.loop_vs2.csv');
+% ac_data = readtable('~/LOGS/swing/20260331_coord/12.manual_ceiling.csv');
+
+% ac_data = readtable('~/LOGS/swing/20260401_immelmann/01.test_state_estimate.csv');
+% ac_data = readtable('~/LOGS/swing/20260401_immelmann/07.immelmann_longer.csv');
+% ac_data = readtable('~/LOGS/swing/20260401_immelmann/08.bug_fixed.csv');
+% ac_data = readtable('~/LOGS/swing/20260401_immelmann/09.immelmann_vs3.5.csv');
+% ac_data = readtable('~/LOGS/swing/20260401_immelmann/10.vs3.csv');
+% ac_data = readtable('~/LOGS/swing/20260401_immelmann/11.again_vs3.csv');
+
+% ac_data = readtable('~/LOGS/swing/20260402_bugs/02.again_vs3_circle_new_eff.csv'); meta = read_meta_swing('~/LOGS/swing/20260402_bugs/02.again_vs3_circle_new_eff.csv');
+% ac_data = readtable('~/LOGS/swing/20260402_bugs/03.circle_vs4.csv');
+% ac_data = readtable('~/LOGS/swing/20260402_bugs/04.circle_vs5.csv');
+% ac_data = readtable('~/LOGS/swing/20260402_bugs/06.back_movement_and_vs2_immelmann.csv');
 
 %%% nps
-% ac_data = readtable('~/LOGS/swing/nps/test_43.csv', 'CommentStyle', '#');
+% ac_data = readtable('~/LOGS/swing/nps/test_51.csv', 'CommentStyle', '#');
 
 % remove duplicates
 [~, keep_idx] = unique(ac_data.timestamp, 'stable');
@@ -113,9 +146,18 @@ figure('Name', 'f cmd');
 plot_spec_force_cmd(ac_data);
 
 %%
+figure('Name', 'f model');
+C_X = -0.900; C_Z = -0.170; C_T_v = -0.460e-8;
+plot_f_model(ac_data, C_X, C_Z, C_T_v);
+
+%%
 figure('Name', '|f_τ| SP');
 plot(ac_data.timestamp, -ac_data.spec_thrust_sp);
 xlabel('time [s]'); ylabel('|f_τ| SP [m/s^2]'); ylim([0, 2*9.81]);
+
+%%
+figure('Name','Sign test');
+plot(ac_data.timestamp, ac_data.sign_test);
 
 %%
 figure('Name', 'Eulers ZXY order');

@@ -11,6 +11,9 @@ function plot_body_translational(ac_data)
 
     norm_v = sqrt(sum(vi.*vi, 2));
 
+    fb_filt = ab_filt - [0 0 9.81];
+    norm_f = sqrt(sum(fb_filt.*fb_filt, 2));
+
     tiledlayout(2, 1, 'Padding', 'compact', 'TileSpacing', 'compact');
     
     ax1 = nexttile;
@@ -18,22 +21,23 @@ function plot_body_translational(ac_data)
     h1 = plot(ac_data.timestamp, vb(:,1), LineWidth=1.5);
     h2 = plot(ac_data.timestamp, vb(:,2), LineWidth=1.5);
     h3 = plot(ac_data.timestamp, vb(:,3), LineWidth=1.5);
-    h4 = plot(ac_data.timestamp, norm_v, LineWidth=1.5, LineStyle=':');
+    h4 = plot(ac_data.timestamp, norm_v, LineWidth=1, LineStyle='-');
     xlabel('time [s]');
     ylabel('Body velocity [m/s]');
     title('Body velocity');
 
     ax2 = nexttile;
     hold on; zoom on; grid on;
-    h5 = plot(ac_data.timestamp, ab_filt(:,1), LineWidth=1.5);
-    h6 = plot(ac_data.timestamp, ab_filt(:,2), LineWidth=1.5);
-    h7 = plot(ac_data.timestamp, ab_filt(:,3), LineWidth=1.5);
+    h5 = plot(ac_data.timestamp, fb_filt(:,1), LineWidth=1.5);
+    h6 = plot(ac_data.timestamp, fb_filt(:,2), LineWidth=1.5);
+    h7 = plot(ac_data.timestamp, fb_filt(:,3), LineWidth=1.5);
+    h8 = plot(ac_data.timestamp, norm_f, LineWidth=1, LineStyle='-');
     xlabel('time [s]');
-    ylabel('Body accel [m/s^2]');
-    title('Body accel');
+    ylabel('f_b [m/s^2]');
+    title('f_b filt');
 
     legend(ax1, [h1,h2,h3,h4], {'v_x','v_y','v_z','norm'});
-    legend(ax2, [h5,h6,h7], {'a_x filt','a_y filt','a_z filt'});
+    legend(ax2, [h5,h6,h7,h8], {'fb_x filt','fb_y filt','fb_z filt','norm'});
 
     linkaxes([ax1,ax2],'x');
 

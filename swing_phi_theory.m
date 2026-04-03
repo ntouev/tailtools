@@ -1,6 +1,6 @@
 %% 
 clear; 
-% close all;
+close all;
 addpath('helpers/');
 addpath('swing_plotters/');
 
@@ -55,13 +55,29 @@ addpath('swing_plotters/');
 % ac_data = readtable('~/LOGS/swing/20260319_quintic_again/14_yaw_training.csv');
 % tranges = [35 50];
 
-ac_data = readtable('~/LOGS/swing/20260326_flight_tests/08.plus_optitrack.csv');
-tranges = [2 20; 25 60];
+% ac_data = readtable('~/LOGS/swing/20260326_flight_tests/08.plus_optitrack.csv');
+% tranges = [2 20; 25 60];
 
 % ac_data = readtable('~/LOGS/swing/20260326_flight_tests/09.after_training.csv');
 % tranges = [2 46; 50 66; 86 118];
 
-act_cutoff = 11; % rad/s, 11 previously
+% ac_data = readtable('~/LOGS/swing/20260327_new_mot_prop_setup/08.Kq2.5_Komega10.csv');
+% tranges = [2 48];
+
+% ac_data = readtable('~/LOGS/swing/20260327_new_mot_prop_setup/09.circle_vs3.csv');
+% tranges = [2 22];
+
+ac_data = readtable('~/LOGS/swing/20260327_new_mot_prop_setup/19.vs5.csv');
+tranges = [5 20];
+
+% ac_data = readtable('~/LOGS/swing/20260331_coord/04.full_coord-uncoord_mixing.csv');
+% tranges = [5 20];
+
+% ac_data = readtable('~/LOGS/swing/20260402_bugs/02.again_vs3_circle_new_eff.csv');
+% tranges = [2 22];
+
+act_cutoff = 19; % rad/s, 11 previously
+filter_freq = 5; % Hz
 
 % remove duplicates
 [~, keep_idx] = unique(ac_data.timestamp, 'stable');
@@ -120,7 +136,6 @@ actBR = lsim(G1, act_cmd_BR, t);
 actBL = lsim(G1, act_cmd_BL, t);
 
 %% filter with Butterworth
-filter_freq = 5;
 [b, a] = butter(2,filter_freq/(fs/2));
 
 pf = filter(b, a, p, get_ic(b,a,p(1)));
@@ -167,24 +182,37 @@ norm_vbf = sqrt(sum(vbf.*vbf, 2));
 ddt_norm_vbf = (sum(vbf .* vbf_d, 2))./norm_vbf;
 
 %% Fit Translational bx
-Xtranx = [ddt_norm_vbf(datarange).*vbf(datarange,1) + norm_vbf(datarange).*vbf_d(datarange,1)]; 
-Ytranx = accxf_d(datarange);
+Xtranx = [norm_vbf(datarange).*vbf(datarange,1)]; 
+Ytranx = accxf(datarange);
+
+% Xtranx = [ddt_norm_vbf(datarange).*vbf(datarange,1) + norm_vbf(datarange).*vbf_d(datarange,1)]; 
+% Ytranx = accxf_d(datarange);
 
 mdl_tranx = fitlm(Xtranx, Ytranx, "linear", 'Intercept', false);
 
 %% Fit Translational by
-Xtrany = [ddt_norm_vbf(datarange).*vbf(datarange,2) + norm_vbf(datarange).*vbf_d(datarange,2)]; 
-Ytrany = accyf_d(datarange);
+Xtrany = [norm_vbf(datarange).*vbf(datarange,2)]; 
+Ytrany = accyf(datarange);
+
+% Xtrany = [ddt_norm_vbf(datarange).*vbf(datarange,2) + norm_vbf(datarange).*vbf_d(datarange,2)]; 
+% Ytrany = accyf_d(datarange);
 
 mdl_trany = fitlm(Xtrany, Ytrany, "linear", 'Intercept', false);
 
 %% Fit Translational bz
-Xtranz = [ddt_norm_vbf(datarange).*vbf(datarange,3) + norm_vbf(datarange).*vbf_d(datarange,3), ...
-           + vbattf(datarange).^2 .* 2.*actTLf(datarange).*actTLf_d(datarange) ...
-           + vbattf(datarange).^2 .* 2.*actTRf(datarange).*actTRf_d(datarange) ...
-           + vbattf(datarange).^2 .* 2.*actBRf(datarange).*actBRf_d(datarange) ... 
-           + vbattf(datarange).^2 .* 2.*actBLf(datarange).*actBLf_d(datarange)]; 
-Ytranz = acczf_d(datarange);
+Xtranz = [norm_vbf(datarange).*vbf(datarange,3), ...
+           + vbattf(datarange).^2 .* actTLf(datarange).^2 ...
+           + vbattf(datarange).^2 .* actTRf(datarange).^2 ...
+           + vbattf(datarange).^2 .* actBRf(datarange).^2 ... 
+           + vbattf(datarange).^2 .* actBLf(datarange).^2]; 
+Ytranz = acczf(datarange);
+
+% Xtranz = [ddt_norm_vbf(datarange).*vbf(datarange,3) + norm_vbf(datarange).*vbf_d(datarange,3), ...
+%            + vbattf(datarange).^2 .* 2.*actTLf(datarange).*actTLf_d(datarange) ...
+%            + vbattf(datarange).^2 .* 2.*actTRf(datarange).*actTRf_d(datarange) ...
+%            + vbattf(datarange).^2 .* 2.*actBRf(datarange).*actBRf_d(datarange) ... 
+%            + vbattf(datarange).^2 .* 2.*actBLf(datarange).*actBLf_d(datarange)]; 
+% Ytranz = acczf_d(datarange);
 
 mdl_tranz = fitlm(Xtranz, Ytranz, "linear", 'Intercept', false);
 
@@ -198,7 +226,6 @@ Yangx = pf_dd(datarange);
 mdl_angx = fitlm(Xangx, Yangx, "linear", 'Intercept', false);
 
 %% Fit Angular by
-
 % Xangy = [ddt_norm_vbf(datarange).*vbf(datarange,1) + norm_vbf(datarange).*vbf_d(datarange,1), ...
 %          + vbattf(datarange).^2 .* 2.*actTLf(datarange).*actTLf_d(datarange) ...
 %          + vbattf(datarange).^2 .* 2.*actTRf(datarange).*actTRf_d(datarange) ...
@@ -224,13 +251,12 @@ Yangz = rf_dd(datarange);
 mdl_angz = fitlm(Xangz, Yangz, "linear", 'Intercept', false);
 
 %% Plot
-
+disp("---");
 fprintf('Transl x: '); fprintf('%.3f ', mdl_tranx.Coefficients.Estimate); fprintf('\n');
 fprintf('Transl y: '); fprintf('%.3f ', mdl_trany.Coefficients.Estimate); fprintf('\n');
 fprintf('Transl z: '); fprintf('%.3f ', mdl_tranz.Coefficients.Estimate(1)); fprintf('\n');
 
 disp("---");
-
 fprintf('Transl z (x 10^-8): '); fprintf('%.3f ', mdl_tranz.Coefficients.Estimate(2:end)*1e8); fprintf('\n');
 fprintf('Ang x    (x 10^-8): '); fprintf('%.2f ', mdl_angx.Coefficients.Estimate*1e8); fprintf('\n');
 % fprintf('Ang y: '); fprintf('%.3f ', mdl_angy.Coefficients.Estimate(1)); fprintf('\n');
@@ -245,8 +271,8 @@ hold on; grid on; zoom on;
 plot(t(datarange), Ytranx, '.', MarkerEdgeColor='b', DisplayName="Real data", LineWidth=1.5);
 plot(t(datarange), mdl_tranx.Fitted, '.', MarkerEdgeColor='r', DisplayName="Interpolated data", LineWidth=1.5);
 xlabel('t [sec]');
-ylabel('[m/s^3]');
-title('Jerk x');
+ylabel('[m/s^2]');
+title('Accel x');
 legend('show');
 hold off;
 
@@ -265,8 +291,8 @@ hold on; grid on; zoom on;
 plot(t(datarange), Ytrany, '.', MarkerEdgeColor='b', DisplayName="Real data", LineWidth=1.5);
 plot(t(datarange), mdl_trany.Fitted, '.', MarkerEdgeColor='r', DisplayName="Interpolated data", LineWidth=1.5);
 xlabel('t [sec]');
-ylabel('[m/s^3]');
-title('Jerk y');
+ylabel('[m/s^2]');
+title('Accel y');
 legend('show');
 hold off;
 
@@ -285,8 +311,8 @@ hold on; grid on; zoom on;
 plot(t(datarange), Ytranz, '.', MarkerEdgeColor='b', DisplayName="Real data", LineWidth=1.5);
 plot(t(datarange), mdl_tranz.Fitted, '.', MarkerEdgeColor='r', DisplayName="Interpolated data", LineWidth=1.5);
 xlabel('t [sec]');
-ylabel('[m/s^3]');
-title('Jerk z');
+ylabel('[m/s^2]');
+title('Accel z');
 legend('show');
 hold off;
 
@@ -304,11 +330,11 @@ linkaxes([ax1, ax2, ax3, ax4, ax5, ax6],'x');
 
 %% extra plots
 
-figure('Name', 'Actuators');
-plot_actuators(ac_data);
-
-figure('Name', 'Translational');
-plot_translational(ac_data);
-
-figure('Name', 'body z accel');
-plot(ac_data.timestamp, ac_data.acc_z);
+% figure('Name', 'Actuators');
+% plot_actuators(ac_data);
+% 
+% figure('Name', 'Translational');
+% plot_translational(ac_data);
+% 
+% figure('Name', 'body z accel');
+% plot(ac_data.timestamp, ac_data.acc_z);
