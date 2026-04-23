@@ -5,15 +5,16 @@ function plot_body_translational(ac_data)
 
     quat = [ac_data.qs, ac_data.qx, ac_data.qy, ac_data.qz];
     vi = [ac_data.vel_n, ac_data.vel_e, ac_data.vel_d];
-    ai_filt = [ac_data.acc_filt_n, ac_data.acc_filt_e, ac_data.acc_filt_d];
     vb = quatrotate(quat, vi);
-    ab_filt = quatrotate(quat, ai_filt);
-
     norm_v = sqrt(sum(vi.*vi, 2));
 
-    fb_filt = ab_filt - [0 0 9.81];
-    norm_f = sqrt(sum(fb_filt.*fb_filt, 2));
+    ai_filt = [ac_data.acc_filt_n, ac_data.acc_filt_e, ac_data.acc_filt_d];
+    norm_a = sqrt(sum(ai_filt.*ai_filt, 2));
 
+    fi_filt = ai_filt - [0 0 9.81];
+    fb_filt = quatrotate(quat, fi_filt);
+    norm_f = sqrt(sum(fb_filt.*fb_filt, 2));
+    
     tiledlayout(2, 1, 'Padding', 'compact', 'TileSpacing', 'compact');
     
     ax1 = nexttile;
